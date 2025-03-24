@@ -16,6 +16,16 @@
         }
       ]
     },
+    "icp_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/f6f5e0927d14886e4bd67f776ee889f31cec2364/rs/ledger_suite/icp/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/f6f5e0927d14886e4bd67f776ee889f31cec2364/canisters/ledger-canister.wasm.gz",
+      "remote": {
+            "id": {
+                "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+            }
+        }
+    },
     "frontend": {
       "dependencies": ["backend"],
       "frontend": {
