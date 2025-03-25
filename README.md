@@ -142,7 +142,7 @@ If successful, the output should be:
 (variant { Ok = 1 : nat64 })
 ```
 
-## Step 12: Transfer funds from the canister
+## Step 10: Transfer funds from the canister
 
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
