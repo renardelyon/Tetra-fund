@@ -121,7 +121,7 @@ dfx deploy
 ### Step 8: Determine out the address of your canister
 
 ```bash
-TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_backend)"
+TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister backend)"
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
