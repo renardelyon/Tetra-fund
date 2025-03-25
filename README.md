@@ -125,7 +125,7 @@ TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_b
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
-## Step 9: Transfer funds to your canister
+### Step 9: Transfer funds to your canister
 
 > [!TIP]
 > Make sure that you are using the default `dfx` account that we minted tokens to in step 6 for the following steps.
@@ -142,7 +142,7 @@ If successful, the output should be:
 (variant { Ok = 1 : nat64 })
 ```
 
-## Step 10: Transfer funds from the canister
+### Step 10: Transfer funds from the canister
 
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
