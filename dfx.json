@@ -26,6 +26,12 @@
             }
         }
     },
+    "icrc1_ledger_canister": {
+        "type": "custom",
+        "candid": "https://raw.githubusercontent.com/dfinity/ic/4833f30d3b5afd84a385dfb146581580285d8a7e/rs/ledger_suite/icrc1/ledger/ledger.did",
+        "wasm": "https://download.dfinity.systems/ic/4833f30d3b5afd84a385dfb146581580285d8a7e/canisters/ic-icrc1-ledger.wasm.gz",
+        "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
+    },
     "frontend": {
       "dependencies": ["backend"],
       "frontend": {

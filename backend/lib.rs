@@ -1,26 +1,34 @@
 use std::cell::RefCell;
 
-use candid::Principal;
+use candid::{Nat, Principal};
 use domain::{
     donation::{
-        model::transfer_data::TransferRequest, usecase::usecase::Usecase as DonationUsecase,
+        model::{
+            donation::{DonationData, DonationVec},
+            transfer_data::{TransferArgs, TransferRequest},
+        },
+        usecase::usecase::Usecase as DonationUsecase,
     },
     fundraise::{
         model::fundraise_data::{FundraiseData, FundraiseDataWithId},
         usecase::usecase::Usecase as FundraiseUsecase,
     },
 };
-use ic_ledger_types::BlockIndex;
+use ic_ledger_types::{BlockIndex, Tokens};
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     DefaultMemoryImpl, StableBTreeMap,
 };
+use icrc_ledger_types::icrc1::transfer::BlockIndex as BlockIndexType;
 
 pub mod domain;
 
 type VMem = VirtualMemory<DefaultMemoryImpl>;
 type FundraiseDataType = StableBTreeMap<Principal, FundraiseData, VMem>;
+type DonationListMap = StableBTreeMap<Principal, DonationVec, VMem>;
 const FUNDRAISE_MEM_ID: MemoryId = MemoryId::new(0);
+const DONATION_LIST_MEM_ID: MemoryId = MemoryId::new(1);
+
 thread_local! {
     static MM: RefCell<MemoryManager<DefaultMemoryImpl>> =
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
@@ -32,16 +40,22 @@ thread_local! {
             fundraise_data,
          })
     });
+
+    static DONATION_STATE: RefCell<DonationListState> = MM.with(|cell|{
+        let mm = cell.borrow();
+        let donation_data = DonationListMap::init(mm.get(DONATION_LIST_MEM_ID));
+        RefCell::new(DonationListState {
+            donation_data,
+         })
+    });
 }
 
 struct FundraiseState {
     fundraise_data: FundraiseDataType,
 }
 
-#[ic_cdk::update]
-async fn transfer(args: TransferRequest) -> Result<BlockIndex, String> {
-    let usecase = DonationUsecase::new();
-    usecase.transfer(&args).await
+struct DonationListState {
+    donation_data: DonationListMap,
 }
 
 #[ic_cdk::update]
@@ -63,6 +77,24 @@ fn get_fundraise_data_by_principal_id(user: Principal) -> Result<FundraiseData, 
         Some(data) => Ok(data),
         None => Err("No data found".to_string()),
     }
+}
+
+#[ic_cdk::query]
+fn get_donation_list_len(receiver: Principal) -> Result<usize, String> {
+    let usecase = DonationUsecase::new();
+    usecase.get_donation_list_len(&receiver)
+}
+
+#[ic_cdk::query]
+fn get_donation_list(receiver: Principal) -> Result<Vec<DonationData>, String> {
+    let usecase = DonationUsecase::new();
+    usecase.get_donation_list(&receiver)
+}
+
+#[ic_cdk::update]
+async fn donate(receiver: Principal, amount: Tokens) -> Result<Nat, String> {
+    let usecase = DonationUsecase::new();
+    usecase.donate(&receiver, amount).await
 }
 
 // Export the interface for the smart contract.

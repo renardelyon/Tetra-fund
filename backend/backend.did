@@ -1,3 +1,4 @@
+type Account = record { owner : principal; subaccount : opt blob };
 type FundraiseData = record {
   goal : nat64;
   description : text;
@@ -14,7 +15,9 @@ type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : vec FundraiseDataWithId; Err : text };
 type Result_2 = variant { Ok : FundraiseData; Err : text };
 type Result_3 = variant { Ok : nat64; Err : text };
+type Result_4 = variant { Ok : nat; Err : text };
 type Tokens = record { e8s : nat64 };
+type TransferArgs = record { to_account : Account; amount : nat };
 type TransferRequest = record {
   to_principal : principal;
   to_subaccount : opt blob;
@@ -25,4 +28,5 @@ service : {
   get_bulk_fundraise_data : (nat64) -> (Result_1) query;
   get_fundraise_data_by_principal_id : (principal) -> (Result_2) query;
   transfer : (TransferRequest) -> (Result_3);
+  transfer_from : (TransferArgs) -> (Result_4);
 }
