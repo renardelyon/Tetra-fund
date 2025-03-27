@@ -3,10 +3,7 @@ use std::cell::RefCell;
 use candid::{Nat, Principal};
 use domain::{
     donation::{
-        model::{
-            donation::{DonationData, DonationVec},
-            transfer_data::{TransferArgs, TransferRequest},
-        },
+        model::donation::{DonationData, DonationVec},
         usecase::usecase::Usecase as DonationUsecase,
     },
     fundraise::{
@@ -14,12 +11,16 @@ use domain::{
         usecase::usecase::Usecase as FundraiseUsecase,
     },
 };
-use ic_ledger_types::{BlockIndex, Tokens};
+use ic_cdk::api::call::CallResult;
+use ic_ledger_types::Tokens;
+use ic_ledger_types::{
+    query_archived_blocks, query_blocks, AccountIdentifier, Block, BlockIndex, GetBlocksArgs,
+    Operation, DEFAULT_SUBACCOUNT,
+};
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     DefaultMemoryImpl, StableBTreeMap,
 };
-use icrc_ledger_types::icrc1::transfer::BlockIndex as BlockIndexType;
 
 pub mod domain;
 
@@ -95,6 +96,64 @@ fn get_donation_list(receiver: Principal) -> Result<Vec<DonationData>, String> {
 async fn donate(receiver: Principal, amount: Tokens) -> Result<Nat, String> {
     let usecase = DonationUsecase::new();
     usecase.donate(&receiver, amount).await
+}
+
+#[ic_cdk::update]
+async fn query_one_block(
+    ledger: Principal,
+    user: Principal,
+    block_index: BlockIndex,
+) -> CallResult<Vec<Block>> {
+    let args = GetBlocksArgs {
+        start: block_index,
+        length: 10,
+    };
+
+    let blocks_result = query_blocks(ledger, args.clone()).await.unwrap();
+
+    let block_filter_closure = |b: &Block| {
+        if let Some(op) = &b.transaction.operation {
+            if let Operation::Transfer {
+                from,
+                to,
+                amount: _,
+                fee: _,
+            } = op
+            {
+                if AccountIdentifier::new(&user, &DEFAULT_SUBACCOUNT) == *from
+                    || AccountIdentifier::new(&user, &DEFAULT_SUBACCOUNT) == *to
+                {
+                    return true;
+                }
+            }
+        }
+        false
+    };
+
+    if blocks_result.blocks.len() >= 1 {
+        debug_assert_eq!(blocks_result.first_block_index, block_index);
+        return Ok(blocks_result
+            .blocks
+            .into_iter()
+            .filter(block_filter_closure)
+            .collect());
+    }
+
+    if let Some(func) = blocks_result.archived_blocks.into_iter().find_map(|b| {
+        (b.start <= block_index && (block_index - b.start) < b.length).then(|| b.callback)
+    }) {
+        match query_archived_blocks(&func, args).await.unwrap() {
+            Ok(range) => {
+                return Ok(range
+                    .blocks
+                    .into_iter()
+                    .filter(block_filter_closure)
+                    .collect())
+            }
+            _ => (),
+        }
+    }
+    Ok(vec![])
 }
 
 // Export the interface for the smart contract.
