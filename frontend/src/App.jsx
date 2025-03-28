@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+
+import Navbar from './Navbar';
+import Footer from './Footer';
+import Homepage from './Homepage';
+// import Donation from './pages/donation';
+// import DonationDetail from './pages/donation_detail';
+// import Fundraiser from './pages/fundraiser';
+// import Login from './pages/login';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [greeting, setGreeting] = useState('');
+
+  // function handleSubmit(event) {
+  //   event.preventDefault();
+  //   const name = event.target.elements.name.value;
+  //   icp_hello_backend.greet(name).then((greeting) => {
+  //     setGreeting(greeting);
+  //   });
+  //   return false;
+  // }
+
+  // return (
+  //   <main>
+  //     <img src="/logo2.svg" alt="DFINITY logo" />
+  //     <br />
+  //     <br />
+  //     <form action="#" onSubmit={handleSubmit}>
+  //       <label htmlFor="name">Enter your name: &nbsp;</label>
+  //       <input id="name" alt="Name" type="text" />
+  //       <button type="submit">Click Me!</button>
+  //     </form>
+  //     <section id="greeting">{greeting}</section>
+  //   </main>
+  // );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <main className='font-display'>
+
+    <Navbar />
+    <Homepage />
+    {/* <Donation /> */}
+    {/* <DonationDetail /> */}
+    {/* <Fundraiser /> */}
+    <Footer />
+
+    {/* <Login /> */}
+    </main>
+  );
 }
 
-export default App
+export default App;
