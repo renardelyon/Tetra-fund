@@ -1,11 +1,6 @@
-type Block = record {
-  transaction : Transaction;
-  timestamp : Timestamp;
-  parent_hash : opt blob;
-};
 type DonationData = record {
-  timestamp : Timestamp;
-  amount : Tokens;
+  timestamp : nat64;
+  amount : nat64;
   donor : principal;
 };
 type File = record {
@@ -25,75 +20,33 @@ type FundraiseData = record {
   description : text;
   campaign_title : text;
   category : text;
-  image : text;
   location : text;
 };
 type FundraiseDataWithId = record {
   id : principal;
   fundraise_data : FundraiseData;
 };
-type Operation = variant {
-  Approve : record {
-    fee : Tokens;
-    from : blob;
-    expires_at : opt Timestamp;
-    spender : blob;
-  };
-  Burn : record { from : blob; amount : Tokens };
-  Mint : record { to : blob; amount : Tokens };
-  Transfer : record { to : blob; fee : Tokens; from : blob; amount : Tokens };
-  TransferFrom : record {
-    to : blob;
-    fee : Tokens;
-    from : blob;
-    amount : Tokens;
-    spender : blob;
-  };
-};
-type RejectionCode = variant {
-  NoError;
-  CanisterError;
-  SysTransient;
-  DestinationInvalid;
-  Unknown;
-  SysFatal;
-  CanisterReject;
-};
 type Result = variant { Ok : text; Err : text };
-type Result_1 = variant { Ok : nat; Err : text };
-type Result_10 = variant {
-  Ok : vec Block;
-  Err : record { RejectionCode; text };
-};
-type Result_2 = variant { Ok : vec FundraiseDataWithId; Err : text };
-type Result_3 = variant { Ok : vec DonationData; Err : text };
-type Result_4 = variant { Ok : nat64; Err : text };
-type Result_5 = variant { Ok : blob; Err : text };
-type Result_6 = variant { Ok : vec FileMetadata; Err : text };
-type Result_7 = variant { Ok : FundraiseData; Err : text };
-type Result_8 = variant { Ok : nat64; Err : text };
-type Result_9 = variant { Ok : vec record { text; File }; Err : text };
-type Timestamp = record { timestamp_nanos : nat64 };
-type Tokens = record { e8s : nat64 };
-type Transaction = record {
-  memo : nat64;
-  icrc1_memo : opt blob;
-  operation : opt Operation;
-  created_at_time : Timestamp;
-};
+type Result_1 = variant { Ok : vec FundraiseDataWithId; Err : text };
+type Result_2 = variant { Ok : vec DonationData; Err : text };
+type Result_3 = variant { Ok : nat64; Err : text };
+type Result_4 = variant { Ok : blob; Err : text };
+type Result_5 = variant { Ok : vec FileMetadata; Err : text };
+type Result_6 = variant { Ok : FundraiseData; Err : text };
+type Result_7 = variant { Ok : nat64; Err : text };
+type Result_8 = variant { Ok : vec record { text; File }; Err : text };
 service : {
   check_file_exists : (text) -> (bool) query;
   create_fundraise : (FundraiseData) -> (Result);
-  donate : (principal, Tokens) -> (Result_1);
-  get_bulk_fundraise_data : (nat64) -> (Result_2) query;
-  get_donation_list : (principal) -> (Result_3) query;
-  get_donation_list_len : (principal) -> (Result_4) query;
-  get_file_chunk : (text, nat64) -> (Result_5) query;
+  donate : (principal, nat64) -> (Result);
+  get_bulk_fundraise_data : (nat64) -> (Result_1) query;
+  get_donation_list : (principal) -> (Result_2) query;
+  get_donation_list_len : (principal) -> (Result_3) query;
+  get_file_chunk : (text, nat64) -> (Result_4) query;
   get_file_type : (text) -> (Result) query;
-  get_files : () -> (Result_6) query;
-  get_fundraise_data_by_principal_id : (principal) -> (Result_7) query;
-  get_total_chunks : (text) -> (Result_8) query;
-  get_user_files : (principal) -> (Result_9) query;
-  query_one_block : (principal, principal, nat64) -> (Result_10);
+  get_files : () -> (Result_5) query;
+  get_fundraise_data_by_principal_id : (principal) -> (Result_6) query;
+  get_total_chunks : (text) -> (Result_7) query;
+  get_user_files : (principal) -> (Result_8) query;
   upload_file : (text, blob, nat64, text) -> (Result);
 }
