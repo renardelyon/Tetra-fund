@@ -10,6 +10,10 @@ use domain::{
         model::fundraise_data::{FundraiseData, FundraiseDataWithId},
         usecase::usecase::Usecase as FundraiseUsecase,
     },
+    storage::{
+        model::file::{Blob, File, FileMetadata, UserFiles},
+        usecase::usecase::Usecase as StorageUsecase,
+    },
 };
 use ic_cdk::api::call::CallResult;
 use ic_ledger_types::Tokens;
@@ -27,14 +31,17 @@ pub mod domain;
 type VMem = VirtualMemory<DefaultMemoryImpl>;
 type FundraiseDataType = StableBTreeMap<Principal, FundraiseData, VMem>;
 type DonationListMap = StableBTreeMap<Principal, DonationVec, VMem>;
+type FileStorage = StableBTreeMap<(Principal, String), File, VMem>;
+
 const FUNDRAISE_MEM_ID: MemoryId = MemoryId::new(0);
 const DONATION_LIST_MEM_ID: MemoryId = MemoryId::new(1);
+const FILE_STORAGE_MEM_ID: MemoryId = MemoryId::new(2);
 
 thread_local! {
     static MM: RefCell<MemoryManager<DefaultMemoryImpl>> =
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
 
-    static STATE: RefCell<FundraiseState> = MM.with(|cell|{
+    static FUNDRAISE_STATE: RefCell<FundraiseState> = MM.with(|cell|{
         let mm = cell.borrow();
         let fundraise_data = FundraiseDataType::init(mm.get(FUNDRAISE_MEM_ID));
         RefCell::new(FundraiseState {
@@ -49,6 +56,14 @@ thread_local! {
             donation_data,
          })
     });
+
+    static FILE_STORAGE: RefCell<FileStorageState> = MM.with(|cell|{
+        let mm = cell.borrow();
+        let file_storage = FileStorage::init(mm.get(FILE_STORAGE_MEM_ID));
+        RefCell::new(FileStorageState {
+            file_storage,
+         })
+    });
 }
 
 struct FundraiseState {
@@ -59,10 +74,14 @@ struct DonationListState {
     donation_data: DonationListMap,
 }
 
+struct FileStorageState {
+    file_storage: FileStorage,
+}
+
 #[ic_cdk::update]
-fn create_fundraise(user: Principal, args: FundraiseData) -> Result<String, String> {
+fn create_fundraise(args: FundraiseData) -> Result<String, String> {
     let usecase = FundraiseUsecase::new();
-    usecase.store_fundraise_data(&user, &args)
+    usecase.store_fundraise_data(&args)
 }
 
 #[ic_cdk::query]
@@ -72,9 +91,9 @@ fn get_bulk_fundraise_data(n: usize) -> Result<Vec<FundraiseDataWithId>, String>
 }
 
 #[ic_cdk::query]
-fn get_fundraise_data_by_principal_id(user: Principal) -> Result<FundraiseData, String> {
+fn get_fundraise_data_by_principal_id(fundraise_user: Principal) -> Result<FundraiseData, String> {
     let usecase = FundraiseUsecase::new();
-    match usecase.get_fundraise_data_by_principal_id(&user) {
+    match usecase.get_fundraise_data_by_principal_id(&fundraise_user) {
         Some(data) => Ok(data),
         None => Err("No data found".to_string()),
     }
@@ -96,6 +115,48 @@ fn get_donation_list(receiver: Principal) -> Result<Vec<DonationData>, String> {
 async fn donate(receiver: Principal, amount: Tokens) -> Result<Nat, String> {
     let usecase = DonationUsecase::new();
     usecase.donate(&receiver, amount).await
+}
+
+#[ic_cdk::query]
+fn get_user_files(user: Principal) -> Result<UserFiles, String> {
+    let usecase = StorageUsecase::new();
+    usecase.get_user_files(user)
+}
+
+#[ic_cdk::query]
+fn check_file_exists(file_name: String) -> bool {
+    let usecase = StorageUsecase::new();
+    usecase.check_file_exists(file_name)
+}
+
+#[ic_cdk::update]
+fn upload_file(name: String, chunk: Blob, index: u64, file_type: String) -> Result<String, String> {
+    let usecase = StorageUsecase::new();
+    usecase.upload_file(name, chunk, index, file_type)
+}
+
+#[ic_cdk::query]
+fn get_files() -> Result<Vec<FileMetadata>, String> {
+    let usecase = StorageUsecase::new();
+    usecase.get_files()
+}
+
+#[ic_cdk::query]
+fn get_total_chunks(file_name: String) -> Result<u64, String> {
+    let usecase = StorageUsecase::new();
+    usecase.get_total_chunks(file_name)
+}
+
+#[ic_cdk::query]
+fn get_file_chunk(file_name: String, index: u64) -> Result<Blob, String> {
+    let usecase = StorageUsecase::new();
+    usecase.get_file_chunk(file_name, index)
+}
+
+#[ic_cdk::query]
+fn get_file_type(file_name: String) -> Result<String, String> {
+    let usecase = StorageUsecase::new();
+    usecase.get_file_type(file_name)
 }
 
 #[ic_cdk::update]

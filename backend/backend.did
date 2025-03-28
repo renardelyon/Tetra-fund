@@ -8,6 +8,18 @@ type DonationData = record {
   amount : Tokens;
   donor : principal;
 };
+type File = record {
+  name : text;
+  file_type : text;
+  total_size : nat64;
+  chunks : vec FileChunk;
+};
+type FileChunk = record { data : blob; index : nat64 };
+type FileMetadata = record {
+  name : text;
+  file_type : text;
+  total_size : nat64;
+};
 type FundraiseData = record {
   goal : nat64;
   description : text;
@@ -49,14 +61,18 @@ type RejectionCode = variant {
 };
 type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : nat; Err : text };
-type Result_2 = variant { Ok : vec FundraiseDataWithId; Err : text };
-type Result_3 = variant { Ok : vec DonationData; Err : text };
-type Result_4 = variant { Ok : nat64; Err : text };
-type Result_5 = variant { Ok : FundraiseData; Err : text };
-type Result_6 = variant {
+type Result_10 = variant {
   Ok : vec Block;
   Err : record { RejectionCode; text };
 };
+type Result_2 = variant { Ok : vec FundraiseDataWithId; Err : text };
+type Result_3 = variant { Ok : vec DonationData; Err : text };
+type Result_4 = variant { Ok : nat64; Err : text };
+type Result_5 = variant { Ok : blob; Err : text };
+type Result_6 = variant { Ok : vec FileMetadata; Err : text };
+type Result_7 = variant { Ok : FundraiseData; Err : text };
+type Result_8 = variant { Ok : nat64; Err : text };
+type Result_9 = variant { Ok : vec record { text; File }; Err : text };
 type Timestamp = record { timestamp_nanos : nat64 };
 type Tokens = record { e8s : nat64 };
 type Transaction = record {
@@ -66,11 +82,18 @@ type Transaction = record {
   created_at_time : Timestamp;
 };
 service : {
-  create_fundraise : (principal, FundraiseData) -> (Result);
+  check_file_exists : (text) -> (bool) query;
+  create_fundraise : (FundraiseData) -> (Result);
   donate : (principal, Tokens) -> (Result_1);
   get_bulk_fundraise_data : (nat64) -> (Result_2) query;
   get_donation_list : (principal) -> (Result_3) query;
   get_donation_list_len : (principal) -> (Result_4) query;
-  get_fundraise_data_by_principal_id : (principal) -> (Result_5) query;
-  query_one_block : (principal, principal, nat64) -> (Result_6);
+  get_file_chunk : (text, nat64) -> (Result_5) query;
+  get_file_type : (text) -> (Result) query;
+  get_files : () -> (Result_6) query;
+  get_fundraise_data_by_principal_id : (principal) -> (Result_7) query;
+  get_total_chunks : (text) -> (Result_8) query;
+  get_user_files : (principal) -> (Result_9) query;
+  query_one_block : (principal, principal, nat64) -> (Result_10);
+  upload_file : (text, blob, nat64, text) -> (Result);
 }

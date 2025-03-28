@@ -2,14 +2,14 @@ use candid::Principal;
 
 use crate::{
     domain::fundraise::model::fundraise_data::{FundraiseData, FundraiseDataWithId},
-    STATE,
+    FUNDRAISE_STATE,
 };
 
 use super::usecase::Usecase;
 
 impl Usecase {
     pub fn get_bulk_fundraise_data(&self, n: usize) -> Result<Vec<FundraiseDataWithId>, String> {
-        STATE.with(|state| {
+        FUNDRAISE_STATE.with(|state| {
             let state = state.borrow();
             let result = state
                 .fundraise_data
@@ -29,7 +29,7 @@ impl Usecase {
         &self,
         principal_id: &Principal,
     ) -> Option<FundraiseData> {
-        STATE.with(|state| {
+        FUNDRAISE_STATE.with(|state| {
             let state = state.borrow();
             state.fundraise_data.get(principal_id)
         })
