@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::borrow::Cow;
 use std::cell::RefCell;
 
@@ -371,5 +372,28 @@ fn get_file_type(file_name: String) -> Result<String, String> {
         }
     })
 }
+
+#[ic_cdk::query]
+fn get_base64_image(user: Principal) -> Result<String, String> {
+    FILE_STORAGE.with(|state| {
+        let state = state.borrow();
+        let mut storage_iter = state.file_storage.iter().filter(|(key, _)| key.0 == user);
+
+        if let Some((_, f)) = storage_iter.next() {
+            let res: Vec<u8> = f
+                .chunks
+                .into_iter()
+                .flat_map(|fchunk| fchunk.data)
+                .collect();
+
+            let base64_str = STANDARD.encode(res);
+
+            return Ok(format!("data:image/{};base64,{}", f.file_type, base64_str));
+        }
+
+        return Err("File Empty".to_string());
+    })
+}
+
 // Export the interface for the smart contract.
 ic_cdk::export_candid!();

@@ -39,6 +39,7 @@ service : {
   check_file_exists : (text) -> (bool) query;
   create_fundraise : (FundraiseData) -> (Result);
   donate : (principal, nat64) -> (Result);
+  get_base64_image : (principal) -> (Result) query;
   get_bulk_fundraise_data : (nat64) -> (Result_1) query;
   get_donation_list : (principal) -> (Result_2) query;
   get_donation_list_len : (principal) -> (Result_3) query;
