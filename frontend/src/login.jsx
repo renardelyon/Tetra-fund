@@ -20,6 +20,7 @@ export default function Login() {
     async function updateActor() {
         const authClient = await AuthClient.create();
         const identity = authClient.getIdentity();
+        console.log("User Principal ID:", identity.getPrincipal().toText());
         const actor = createActor(canisterId, {
             agentOptions: {
                 identity

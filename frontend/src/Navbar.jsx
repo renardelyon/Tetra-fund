@@ -69,7 +69,7 @@ export default function Navbar() {
           </li> */}
         </ul>
         {!isAuthenticated ? (
-          <a href="/login" className='px-7 py-2 text-white bg-blue-800 rounded-2xl'>
+          <a href="/login" className='px-7 py-2 text-white bg-blue-800 rounded-2xl cursor-pointer hover:scale-95 transition-transform'>
             Sign In
           </a>
         ) : (

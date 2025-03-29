@@ -11,8 +11,8 @@ export default function Homepage() {
                     opportunity to those in need. Together, we can make a lasting impact - one act at a time.
                 </p>
                 <div className='flex flex-row justify-center gap-16 font-medium'>
-                    <button className='grow py-3 max-w-52 text-[1.1rem] text-white bg-blue-800 rounded-full'>Donate Now</button>
-                    <button className='grow py-3 max-w-52 text-[1.1rem] rounded-full border-3'>Start Fundraising</button>
+                    <button onClick={() => window.location.href = "/donation"} className='z-0 grow py-3 max-w-52 text-[1.1rem] text-white bg-blue-800 rounded-full cursor-pointer hover:scale-95 transition-transform'>Donate Now</button>
+                    <button onClick={() => window.location.href = "/fundraise"} className='z-0 grow py-3 max-w-52 text-[1.1rem] rounded-full border-3 cursor-pointer hover:scale-95 transition-transform'>Start Fundraising</button>
                 </div>
                 <div className='flex flex-row gap-2 h-96 -mt-16 mb-8'>
                     <div className='grow bg-gray-500 rounded-xl'>image</div>
@@ -92,7 +92,7 @@ export default function Homepage() {
                     </div>
                 </div>
                 <div className='flex justify-end'>
-                    <button className='px-8 py-3 font-medium text-white bg-blue-800 rounded-full'>
+                    <button className='px-8 py-3 font-medium text-white bg-blue-800 rounded-full cursor-pointer hover:scale-95 transition-transform'>
                         Discover More
                     </button>
                 </div>
@@ -108,8 +108,8 @@ export default function Homepage() {
                     <p className='mt-4 font-medium text-blue-800'>Ready to make an impact?</p>
                 </div>
                 <div className='flex flex-row justify-center gap-16 font-medium'>
-                    <button className='grow py-3 max-w-52 text-[1.1rem] text-white bg-blue-800 rounded-full'>Donate Now</button>
-                    <button className='grow py-3 max-w-52 text-[1.1rem] rounded-full border-3'>Start Fundraising</button>
+                    <button onClick={() => window.location.href = "/donation"} className='grow py-3 max-w-52 text-[1.1rem] text-white bg-blue-800 rounded-full cursor-pointer hover:scale-95 transition-transform'>Donate Now</button>
+                    <button onClick={() => window.location.href = "/fundraise"} className='grow py-3 max-w-52 text-[1.1rem] rounded-full border-3 cursor-pointer hover:scale-95 transition-transform'>Start Fundraising</button>
                 </div>
             </section>
         </main>
