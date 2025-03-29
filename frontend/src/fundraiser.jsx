@@ -1,12 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { backend } from '../../src/declarations/backend/index.js';
+import React, { useState, useContext, useEffect } from 'react';
 import { LoginContext } from './App';
-
-const network = process.env.DFX_NETWORK;
-const identityProvider =
-  network === 'ic'
-    ? 'https://identity.ic0.app' // Mainnet
-    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
 
 export default function Fundraiser() {
     const { actor } = useContext(LoginContext);
@@ -20,8 +13,13 @@ export default function Fundraiser() {
         description: '',
         goal: '',
         location: '',
-
     });
+
+    useEffect(() => {
+        if (errorMessage) {
+            alert(errorMessage)
+        }
+    })
 
     async function handleFileUpload(event) {
         const file = event.target.files[0];
@@ -123,7 +121,7 @@ export default function Fundraiser() {
                 <div className="flex flex-col mb-12">
                     <h2 className="mb-6 text-[1.5rem] font-medium">Add Media</h2>
                     <div className="relative">
-                        <input onChange={handleFileUpload} type="file" name="name" id="name" className="absolute inset-0 p-4 rounded-2xl border-2 border-gray-300 border-dashed" multiple/>
+                        <input onChange={handleFileUpload} type="file" accept="image/jpg, image/png" name="name" id="name" className="absolute inset-0 p-4 rounded-2xl border-2 border-gray-300 border-dashed" multiple/>
                         <div className="flex flex-col justify-center h-64 text-center">
                             <svg
                                 width="24"

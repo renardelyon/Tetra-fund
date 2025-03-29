@@ -1,8 +1,8 @@
 import { createContext, useState } from 'react';
 
-import Navbar from './Navbar';
-import Footer from './Footer';
-import Homepage from './Homepage';
+import Navbar from './navbar';
+import Footer from './footer';
+import Homepage from './homepage';
 import Donation from './donation';
 import DonationDetail from './donation_detail';
 import Fundraiser from './fundraiser';

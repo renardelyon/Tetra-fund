@@ -1,4 +1,46 @@
+import { useContext, useEffect, useState } from 'react';
+import { backend } from '../../src/declarations/backend/index.js';
+import { LoginContext } from './App';
+import { Principal } from '@dfinity/principal';
+
 export default function Donation() {
+    const { actor } = useContext(LoginContext);
+    const [imgSrc, setImgSrc] = useState()
+    const [fundraiseData, setFundraiseData] = useState([])
+
+    async function get_data() {  
+        const res = await actor.get_bulk_fundraise_data(10)
+        const dataProcessed = res.Ok.map(({fundraise_data, id}) => {
+            const userId = Principal.fromUint8Array(id._arr).toText()
+            return {
+                goal: fundraise_data.goal,
+                description: fundraise_data.description,
+                campaign_title: fundraise_data.campaign_title,
+                category: fundraise_data.category,
+                location: fundraise_data.location,
+                userId
+            }
+        })
+        setFundraiseData(dataProcessed)
+
+        res.Ok.forEach(async ({_, id}) => {
+            const userId = Principal.fromUint8Array(id._arr).toText()
+            const res = await actor.get_base64_image(id)
+            setImgSrc({
+                [userId]: res.Ok
+            })
+        })
+        
+    }
+
+    useEffect(() => {
+      if (actor) {
+        get_data()
+      }
+
+      console.log(fundraiseData)
+    },[actor, fundraiseData])
+
     return (
         <main>
             <section className='flex flex-col px-8 py-16 mt-16 border-b-2 border-gray-200'>
@@ -14,96 +56,17 @@ export default function Donation() {
                     <a href="#" className="text-gray-400">See More</a>
                 </div>
                 <div className='flex flex-row gap-4'>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Flood Relief for Families in Central Java</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Bringing Digital Learning to Remote Villages</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Support Life-Saving Surgery for Baby Aulia</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                </div>
-            </section>
-
-            <section className='px-8 py-16'>
-                <div className="flex flex-row justify-between mb-8 font-medium">
-                    <h2 className="text-[2rem]">Medical Fundraisers</h2>
-                    <a href="#" className="text-gray-400">See More</a>
-                </div>
-                <div className='flex flex-row gap-4'>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Flood Relief for Families in Central Java</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Bringing Digital Learning to Remote Villages</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Support Life-Saving Surgery for Baby Aulia</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                </div>
-            </section>
-
-            <section className='px-8 py-16'>
-                <div className="flex flex-row justify-between mb-8 font-medium">
-                    <h2 className="text-[2rem]">Emergency Fundraisers</h2>
-                    <a href="#" className="text-gray-400">See More</a>
-                </div>
-                <div className='flex flex-row gap-4'>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Flood Relief for Families in Central Java</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Bringing Digital Learning to Remote Villages</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
-                    <div className='grow'>
-                        <div className='h-64 bg-gray-500 rounded-2xl'>image</div>
-                        <p className='my-4 font-bold'>Support Life-Saving Surgery for Baby Aulia</p>
-                        <div className='h-4 bg-gray-200 rounded-full'>
-                            <div className='h-4 w-1/3 bg-blue-800 rounded-full'></div>
-                        </div>
-                        <p className='mt-2'>Rp 10.000.000 raised</p>
-                    </div>
+                    { (fundraiseData || []).map((data, index) => (
+                            <div className='grow' key={index}>
+                                <img className='h-64 bg-gray-500 rounded-2xl' src={(imgSrc || {[data.userId]: ''})[data.userId]} />
+                                <p className='my-4 font-bold'>{ data.campaign_title }</p>
+                                <div className='h-4 bg-gray-200 rounded-full'>
+                                    <div className={`h-4 w-[${34.56}%] bg-blue-800 rounded-full`}></div>
+                                </div>
+                                <p className='mt-2'>ICP {data.goal.toString()} raised</p>
+                            </div>
+                        )) 
+                    }
                 </div>
             </section>
 
