@@ -1,5 +1,8 @@
 # Tetra Fund!
 
+![image](https://github.com/user-attachments/assets/5974b815-1980-45f6-b7a5-2aa392fa00c3)
+
+
 ## Project structure
 
 The `/backend` folder contains the Rust smart contract:
