@@ -2,6 +2,10 @@
 
 ![image](https://github.com/user-attachments/assets/5974b815-1980-45f6-b7a5-2aa392fa00c3)
 
+The Donation Tracking app leverages ICP smart contracts and Web3 technology to provide real-time transparency in donation flows. Users can donate or start a fundraiser, with each donation assigned a unique Principal for tracking. With live tracking, users can always see where their money is and how it is being utilized.
+
+This application's logic is written in Rust, a programming language known for its performance, safety, and reliability, making it ideal for building secure and efficient smart contracts on ICP.
+
 
 ## Project structure
 
