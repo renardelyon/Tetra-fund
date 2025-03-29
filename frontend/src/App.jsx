@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 
 import Navbar from './Navbar';
 import Footer from './Footer';
 import Homepage from './Homepage';
-// import Donation from './pages/donation';
-// import DonationDetail from './pages/donation_detail';
-// import Fundraiser from './pages/fundraiser';
-// import Login from './pages/login';
+import Donation from './donation';
+import DonationDetail from './donation_detail';
+import Fundraiser from './fundraiser';
+import Login from './login';
 
+import Route from './Route';
+import NavigationProvider from './NavigationProvider';
 
-function App() {
+export const LoginContext = createContext();
+
+function App() { 
   // const [greeting, setGreeting] = useState('');
 
   // function handleSubmit(event) {
@@ -32,21 +36,47 @@ function App() {
   //       <button type="submit">Click Me!</button>
   //     </form>
   //     <section id="greeting">{greeting}</section>
-  //   </main>
+    // </main>
   // );
 
+  const [authClient, setAuthClient] = useState();
+  const [actor, setActor] = useState();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const providerValue = {
+    authClient,
+    setAuthClient,
+    actor,
+    setActor,
+    isAuthenticated,
+    setIsAuthenticated,
+  };
+
   return (
-    <main className='font-display'>
+    <LoginContext.Provider value={providerValue}>
+      <NavigationProvider>
+        <main className='font-display'>
 
-    <Navbar />
-    <Homepage />
-    {/* <Donation /> */}
-    {/* <DonationDetail /> */}
-    {/* <Fundraiser /> */}
-    <Footer />
-
-    {/* <Login /> */}
-    </main>
+          <Navbar />
+          <Route href="/">
+            <Homepage />
+          </Route>
+          <Route href="/donation">
+            <Donation /> 
+          </Route>
+          <Route href="/donation/detail">
+            <DonationDetail /> 
+          </Route>
+          <Route href="/fundraise">
+            <Fundraiser /> 
+          </Route>
+          <Route href="/login">
+            <Login /> 
+          </Route>
+          <Footer />
+        </main>
+      </NavigationProvider>
+    </LoginContext.Provider>
   );
 }
 

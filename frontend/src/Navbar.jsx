@@ -1,4 +1,37 @@
+import { useContext, useEffect } from "react";
+import { LoginContext } from "./App";
+import { createActor } from 'declarations/backend';
+import { AuthClient } from '@dfinity/auth-client';
+import { canisterId } from 'declarations/backend/index.js';
+
 export default function Navbar() {
+    const { setActor, setAuthClient, setIsAuthenticated, authClient, isAuthenticated } = useContext(LoginContext)
+
+    useEffect(() => {
+        updateActor();
+    }, []);
+
+    async function updateActor() {
+        const authClient = await AuthClient.create();
+        const identity = authClient.getIdentity();
+        const actor = createActor(canisterId, {
+            agentOptions: {
+                identity
+            }
+        });
+        const isAuthenticated = await authClient.isAuthenticated();
+
+        setActor(actor);
+        setAuthClient(authClient);
+        setIsAuthenticated(isAuthenticated);
+    }
+      
+    async function logout(e) {
+      e.preventDefault();
+      await authClient.logout();
+      updateActor();
+    }
+
     return (
       <nav className='fixed top-0 left-0 right-0 flex flex-row justify-between px-8 py-4 font-medium bg-white z-1 drop-shadow-lg'>
         <a href="#" className='my-auto'>
@@ -6,15 +39,15 @@ export default function Navbar() {
         </a>
         <ul className='flex flex-row gap-16'>
           <li className='m-auto h-min'>
-            <a href="#">Home</a>
+            <a href="/">Home</a>
           </li>
           <li className='m-auto h-min'>
-            <a href="#">Donation</a>
+            <a href="/donation">Donation</a>
           </li>
           <li className='m-auto h-min'>
-            <a href="#">Fundraise</a>
+            <a href="/fundraise">Fundraise</a>
           </li>
-          <li className='m-auto h-min'>
+          {/* <li className='m-auto h-min'>
             <a href="#">
               <svg
                 width="24"
@@ -33,11 +66,18 @@ export default function Navbar() {
               </svg>
               Search
             </a>
-          </li>
+          </li> */}
         </ul>
-        <a href="#" className='px-7 py-2 text-white bg-blue-800 rounded-2xl'>
-          Sign In
-        </a>
+        {!isAuthenticated ? (
+          <a href="/login" className='px-7 py-2 text-white bg-blue-800 rounded-2xl'>
+            Sign In
+          </a>
+        ) : (
+          <a href="#" onClick={logout} className='px-7 py-2 text-white bg-blue-800 rounded-2xl'>
+            Log Out
+          </a>
+        )}
+        
       </nav>
     );
   }

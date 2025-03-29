@@ -1,4 +1,97 @@
+import { AuthClient } from '@dfinity/auth-client';
+import { createActor } from 'declarations/backend';
+import { canisterId } from 'declarations/backend/index.js';
+import React, { useState, useEffect } from 'react';
+
+const network = process.env.DFX_NETWORK;
+const identityProvider =
+  network === 'ic'
+    ? 'https://identity.ic0.app' // Mainnet
+    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
+
 export default function Fundraiser() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authClient, setAuthClient] = useState();
+    const [actor, setActor] = useState();
+    const [errorMessage, setErrorMessage] = useState();
+    const [fileTransferProgress, setFileTransferProgress] = useState();
+
+    useEffect(() => {
+        updateActor();
+        setErrorMessage();
+    }, []);
+
+    async function updateActor() {
+        const authClient = await AuthClient.create();
+        const identity = authClient.getIdentity();
+        const actor = createActor(canisterId, {
+            agentOptions: {
+            identity
+            }
+        });
+        const isAuthenticated = await authClient.isAuthenticated();
+
+        setActor(actor);
+        setAuthClient(authClient);
+        setIsAuthenticated(isAuthenticated);
+    }
+
+    async function login() {
+        await authClient.login({
+            identityProvider,
+            onSuccess: updateActor
+        });
+    }
+
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        setErrorMessage();
+
+        if (!file) {
+            setErrorMessage('Please select a file to upload.');
+            return;
+        }
+
+        if (await actor.checkFileExists(file.name)) {
+            setErrorMessage(`File "${file.name}" already exists. Please choose a different file name.`);
+            return;
+        }
+        setFileTransferProgress({
+            mode: 'Uploading',
+            fileName: file.name,
+            progress: 0
+        });
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = new Uint8Array(e.target.result);
+            const chunkSize = 1024 * 1024; // 1 MB chunks
+            const totalChunks = Math.ceil(content.length / chunkSize);
+
+            try {
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * chunkSize;
+                const end = Math.min(start + chunkSize, content.length);
+                const chunk = content.slice(start, end);
+
+                await actor.uploadFileChunk(file.name, chunk, BigInt(i), file.type);
+                setFileTransferProgress((prev) => ({
+                ...prev,
+                progress: Math.floor(((i + 1) / totalChunks) * 100)
+                }));
+            }
+            } catch (error) {
+            console.error('Upload failed:', error);
+            setErrorMessage(`Failed to upload ${file.name}: ${error.message}`);
+            } finally {
+            await loadFiles();
+            setFileTransferProgress(null);
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+
     return (
         <main>
             <section className='flex flex-col px-8 py-16 mt-16 border-b-2 border-gray-200'>
@@ -36,7 +129,7 @@ export default function Fundraiser() {
                     <div className="flex flex-col mb-12">
                         <h2 className="mb-6 text-[1.5rem] font-medium">Add Media</h2>
                         <div className="relative">
-                            <input type="file" name="name" id="name" className="absolute inset-0 p-4 rounded-2xl border-2 border-gray-300 border-dashed" multiple/>
+                            <input onChange={handleFileUpload} type="file" name="name" id="name" className="absolute inset-0 p-4 rounded-2xl border-2 border-gray-300 border-dashed" multiple/>
                             <div className="flex flex-col justify-center h-64 text-center">
                                 <svg
                                     width="24"
