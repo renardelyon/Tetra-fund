@@ -11,8 +11,6 @@ export default function Fundraiser() {
         category: '',
         location: '',
         description: '',
-        goal: '',
-        location: '',
     });
 
     useEffect(() => {
